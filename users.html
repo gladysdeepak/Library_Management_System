@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .user-section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+        .role-badge {
+            font-size: 0.8rem;
+        }
+        .phone-col {
+            min-width: 120px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">Manage Users</h1>
+
+        <!-- Add User Form -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Add New User</h5>
+            </div>
+            <div class="card-body">
+                <form action="/add_user" method="post" class="row g-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" name="name" placeholder="Full Name" required>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" name="role" required>
+                            <option value="" disabled selected>Select Role</option>
+                            <option value="user">Regular User</option>
+                            <option value="librarian">Librarian</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="tel" class="form-control" name="phone" placeholder="Phone"
+                               pattern="[0-9]{10,15}" title="10-15 digit phone number">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-person-plus"></i> Add
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Librarians Section -->
+        <div class="user-section">
+            <h2 class="mb-3">
+                <i class="bi bi-person-badge"></i> Librarians
+                <span class="badge bg-warning text-dark role-badge">
+                    {{ users|selectattr('role', 'equalto', 'librarian')|list|length }}
+                </span>
+            </h2>
+            
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-warning">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th class="phone-col">Phone</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users if user.role == 'librarian' %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.phone or '-' }}</td>
+                            <td>
+                                <a href="/delete_user/{{ user.id }}" class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('Delete librarian {{ user.name }}?')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No librarians found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Regular Users Section -->
+        <div class="user-section">
+            <h2 class="mb-3">
+                <i class="bi bi-people"></i> Regular Users
+                <span class="badge bg-primary role-badge">
+                    {{ users|selectattr('role', 'equalto', 'user')|list|length }}
+                </span>
+            </h2>
+            
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th class="phone-col">Phone</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users if user.role == 'user' %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.phone or '-' }}</td>
+                            <td>
+                                <a href="/delete_user/{{ user.id }}" class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('Delete user {{ user.name }}?')">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No regular users found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <a href="/" class="btn btn-secondary mt-3">
+            <i class="bi bi-arrow-left"></i> Back to Home
+        </a>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Phone input formatting -->
+    <script>
+    document.querySelector('input[name="phone"]').addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9+]/g, '');
+    });
+    </script>
+</body>
+</html>

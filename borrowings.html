@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Borrowings</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .borrowing-card {
+            transition: transform 0.2s;
+            margin-bottom: 20px;
+        }
+        .borrowing-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .status-badge {
+            font-size: 0.8rem;
+        }
+        .action-buttons {
+            white-space: nowrap;
+        }
+        .due-date {
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4">
+            <i class="bi bi-clipboard-check"></i> Borrowing Records
+        </h1>
+
+        <!-- New Borrowing Card -->
+        <div class="card mb-4 shadow-sm borrowing-card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">New Borrowing</h5>
+            </div>
+            <div class="card-body">
+                <form action="/borrow_book" method="post" class="row g-3">
+                    <div class="col-md-5">
+                        <input type="number" class="form-control" name="user_id" placeholder="User ID" min="1" required>
+                    </div>
+                    <div class="col-md-5">
+                        <input type="number" class="form-control" name="book_id" placeholder="Book ID" min="1" required>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-bookmark-plus"></i> Borrow
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Current Borrowings Card -->
+        <div class="card shadow-sm borrowing-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Active Borrowings</h5>
+                <span class="badge bg-light text-primary status-badge">
+                    {{ borrowings|selectattr('return_date', 'none')|list|length }} active
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Book</th>
+                                <th>Borrowed On</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in borrowings if not b.return_date %}
+                            <tr>
+                                <td>{{ b.id }}</td>
+                                <td>{{ b.user_name }} (ID: {{ b.user_id }})</td>
+                                <td>{{ b.book_title }} (ID: {{ b.book_id }})</td>
+                                <td>{{ b.borrow_date.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <span class="badge bg-warning text-dark status-badge">
+                                        <i class="bi bi-clock-history"></i> Borrowed
+                                    </span>
+                                </td>
+                                <td class="action-buttons">
+                                    <a href="/return_book/{{ b.id }}" class="btn btn-sm btn-success">
+                                        <i class="bi bi-bookmark-check"></i> Return
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No active borrowings</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Borrowing History Card -->
+        <div class="card mt-4 shadow-sm borrowing-card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Borrowing History</h5>
+                <span class="badge bg-light text-secondary status-badge">
+                    {{ borrowings|selectattr('return_date')|list|length }} returned
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>ID</th>
+                                <th>User</th>
+                                <th>Book</th>
+                                <th>Borrowed On</th>
+                                <th>Returned On</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for b in borrowings if b.return_date %}
+                            <tr>
+                                <td>{{ b.id }}</td>
+                                <td>{{ b.user_name }}</td>
+                                <td>{{ b.book_title }}</td>
+                                <td>{{ b.borrow_date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ b.return_date.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <span class="badge bg-success status-badge">
+                                        <i class="bi bi-check-circle"></i> Returned
+                                    </span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No borrowing history</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <a href="/" class="btn btn-secondary mt-4">
+            <i class="bi bi-arrow-left"></i> Back to Home
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

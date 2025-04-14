@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Rated Books</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .trophy-card {
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .trophy-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .gold { color: #FFD700; }
+        .silver { color: #C0C0C0; }
+        .bronze { color: #CD7F32; }
+        .rating-badge {
+            font-size: 0.9rem;
+            background: rgba(255,193,7,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="mb-4 text-center">
+            <i class="bi bi-trophy-fill gold"></i> Top Rated Books
+        </h1>
+
+        <div class="row justify-content-center">
+            {% for book in top_books %}
+            <div class="col-md-4 mb-4">
+                <div class="card trophy-card h-100">
+                    <div class="card-body text-center">
+                        <!-- Trophy for top 3 -->
+                        {% if loop.index <= 3 %}
+                        <div class="mb-3">
+                            <i class="bi bi-trophy-fill {% if loop.index == 1 %}gold{% elif loop.index == 2 %}silver{% else %}bronze{% endif %}" 
+                               style="font-size: 3rem;"></i>
+                            <h3 class="mt-2">#{{ loop.index }}</h3>
+                        </div>
+                        {% endif %}
+
+                        <!-- Book Details -->
+                        <h4 class="card-title">{{ book.title }}</h4>
+                        <h6 class="card-subtitle mb-3 text-muted">{{ book.author }}</h6>
+                        <span class="badge bg-info text-dark mb-3">{{ book.genre }}</span>
+
+                        <!-- Rating -->
+                        <div class="mb-4">
+                            <span class="rating-badge p-2 rounded">
+                                <span class="text-warning">
+                                    {% for i in range(1, 6) %}
+                                        {% if i <= book.avg_rating|float %}
+                                            <i class="bi bi-star-fill"></i>
+                                        {% elif i-0.5 <= book.avg_rating|float %}
+                                            <i class="bi bi-star-half"></i>
+                                        {% else %}
+                                            <i class="bi bi-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </span>
+                                <strong class="ms-2">{{ "%.1f"|format(book.avg_rating) }}</strong>
+                                <span class="text-muted small">({{ book.rating_count }} ratings)</span>
+                            </span>
+                        </div>
+
+                        <!-- Availability -->
+                        <div class="mb-3">
+                            <span class="badge {% if book.available %}bg-success{% else %}bg-danger{% endif %}">
+                                {% if book.available %}
+                                    <i class="bi bi-check-circle"></i> Available
+                                {% else %}
+                                    <i class="bi bi-x-circle"></i> Checked Out
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-2">
+                            {% if book.available %}
+                            <form action="/borrow_book" method="post">
+                                <input type="hidden" name="book_id" value="{{ book.id }}">
+                                <div class="input-group">
+                                    <input type="number" name="user_id" class="form-control" placeholder="Your User ID" required>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="bi bi-bookmark-plus"></i> Borrow
+                                    </button>
+                                </div>
+                            </form>
+                            {% endif %}
+                            <a href="/books#book-{{ book.id }}" class="btn btn-outline-primary">
+                                <i class="bi bi-eye"></i> View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/books" class="btn btn-primary me-2">
+                <i class="bi bi-book"></i> View All Books
+            </a>
+            <a href="/" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Home
+            </a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

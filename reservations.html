@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Book Reservations</h2>
+    
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-info">
+                <tr>
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Book</th>
+                    <th>Reserved On</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for res in reservations %}
+                <tr>
+                    <td>{{ res.id }}</td>
+                    <td>{{ res.user_name }}</td>
+                    <td>{{ res.book_title }}</td>
+                    <td>{{ res.reservation_date.strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if res.status == 'pending' %}bg-warning text-dark
+                            {% elif res.status == 'fulfilled' %}bg-success
+                            {% else %}bg-secondary{% endif %}">
+                            {{ res.status }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if res.status == 'pending' %}
+                        <a href="/cancel_reservation/{{ res.id }}" class="btn btn-sm btn-danger">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No pending reservations</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <a href="/books" class="btn btn-secondary mt-3">
+        <i class="bi bi-arrow-left"></i> Back to Books
+    </a>
+</div>
+{% endblock %}
